@@ -1,13 +1,31 @@
-# Grocery Delivery
+<h1 align="center">Grocery Delivery</h1>
 
-A cash-on-delivery grocery app for a single shop. Customers browse, fill a cart and place an order. The shop owner runs everything else from an admin panel inside the same app: stock, categories, offers and order status.
+<p align="center">
+  A cash-on-delivery grocery app for a single shop, with the admin panel built in.
+</p>
 
-Built with Expo (React Native) and Firebase. One codebase runs on Android, iOS and the web.
+<p align="center">
+  <img src="https://img.shields.io/badge/Expo-SDK%2054-000020?logo=expo&logoColor=white" alt="Expo SDK 54" />
+  <img src="https://img.shields.io/badge/React%20Native-0.81-61DAFB?logo=react&logoColor=black" alt="React Native 0.81" />
+  <img src="https://img.shields.io/badge/Firebase-Auth%20%C2%B7%20Firestore%20%C2%B7%20Storage-DD2C00?logo=firebase&logoColor=white" alt="Firebase Auth, Firestore and Storage" />
+  <img src="https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white" alt="TypeScript 5.9" />
+  <img src="https://img.shields.io/badge/platforms-Android%20%7C%20iOS%20%7C%20Web-2E7D32" alt="Android, iOS and web" />
+</p>
 
 <p align="center">
   <img src="docs/screenshots/home.png" width="230" alt="Home screen with categories, offers and products" />
   <img src="docs/screenshots/product.png" width="230" alt="Product page with price, stock and reviews" />
   <img src="docs/screenshots/cart.png" width="230" alt="Cart with quantities and order total" />
+</p>
+
+Customers browse, fill a cart and place an order. The shop owner runs everything else from the same app: stock, categories, offers and order status. It is built with Expo (React Native) and Firebase, so one codebase covers Android, iOS and the web, and there is no server to host.
+
+<p align="center">
+  <a href="#what-it-does">Features</a> ·
+  <a href="#screens">Screens</a> ·
+  <a href="#how-it-works">How it works</a> ·
+  <a href="#running-it">Running it</a> ·
+  <a href="#known-limits">Known limits</a>
 </p>
 
 ## What it does
@@ -64,6 +82,32 @@ constants/      colours, sizes, fonts, delivery fee
 utils/          date formatting
 types/          shared TypeScript types
 ```
+
+### The life of an order
+
+```mermaid
+sequenceDiagram
+    actor C as Customer
+    participant F as Firestore
+    actor A as Shop owner
+    C->>F: place order (one batch: create order, decrement stock)
+    F-->>A: order appears in the admin queue as Pending
+    A->>F: set status to Confirmed
+    A->>C: push notification through Expo
+    F-->>C: tracking screen updates live
+    A->>F: Out for Delivery, then Delivered
+    C->>F: rate the items, order marked reviewed
+```
+
+### Data model
+
+| Collection | Holds | Who can write |
+| :--- | :--- | :--- |
+| `users/{uid}` | name, phone, saved addresses, role, push token | the user, or an admin |
+| `products/{id}` | name, price, stock, image, offer %, availability | admins (customers may only lower `stock`) |
+| `products/{id}/reviews` | rating, comment, reviewer name | any signed-in user |
+| `categories/{id}` | name, image, sort order | admins |
+| `orders/{id}` | items, totals, address, status, timestamps | the customer creates, admins update |
 
 ### Sign-in and roles
 
