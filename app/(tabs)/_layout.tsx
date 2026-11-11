@@ -1,33 +1,71 @@
-import { Tabs } from 'expo-router';
-import React from 'react';
-
-import { HapticTab } from '@/components/haptic-tab';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { Redirect, Tabs } from 'expo-router';
+import { useAuthStore } from '../../store/authStore';
+import { THEME } from '../../constants/theme';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { CartButton } from '../../components/CartButton';
+import { headerOptions } from '../_layout';
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
+  const { isAuthenticated, user, isLoading } = useAuthStore();
+
+  if (!isLoading && (!isAuthenticated || user?.role === 'admin')) {
+    return <Redirect href="/(auth)/welcome" />;
+  }
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
-        tabBarButton: HapticTab,
-      }}>
+        headerShown: true,
+        ...headerOptions,
+        tabBarActiveTintColor: THEME.colors.primary,
+        tabBarInactiveTintColor: THEME.colors.textSecondary,
+        tabBarLabelStyle: { fontFamily: THEME.fonts.medium },
+        headerRight: () => <CartButton />,
+      }}
+    >
       <Tabs.Screen
-        name="index"
+        name="home"
         options={{
           title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="home-outline" size={size} color={color} />
+          ),
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="search"
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          title: 'Search',
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="magnify" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="cart"
+        options={{
+          title: 'Cart',
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="cart-outline" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="orders"
+        options={{
+          title: 'Orders',
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="clipboard-list-outline" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: 'Profile',
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="account-outline" size={size} color={color} />
+          ),
         }}
       />
     </Tabs>
